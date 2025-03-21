@@ -26,63 +26,62 @@ export const FormExtension = {
     const formContainer = document.createElement("form");
 
     formContainer.innerHTML = `
-      <style>
-        label {
-          font-size: 0.8em;
-          color: #888;
-        }
-        input[type="text"], input[type="email"], input[type="tel"] {
-          width: 100%;
-          border: none;
-          border-bottom: 0.5px solid rgba(0, 0, 0, 0.1);
-          background: transparent;
-          margin: 5px 0;
-          outline: none;
-        }
-        .phone {
-          width: 150px;
-        }
-        .invalid {
-          border-color: red;
-        }
-        .submit {
-          background: linear-gradient(to right, #2e6ee1, #2e7ff1 );
-          border: none;
-          color: white;
-          padding: 10px;
-          border-radius: 5px;
-          width: 100%;
-          cursor: pointer;
-        }
-      </style>
-
-      <label for="name">Name</label>
-      <input type="text" class="name" name="name" required><br><br>
-
-      <label for="email">Email</label>
-      <input type="email" class="email" name="email" required pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}$" title="Invalid email address"><br><br>
-
-      <label for="phone">Phone Number</label>
-      <input type="tel" class="phone" name="phone" required pattern="\\d+" title="Invalid phone number, please enter only numbers"><br><br>
-
-      <input type="submit" class="submit" value="Submit">
-    `;
+    <style>
+      label {
+        font-size: 0.8em;
+        color: #888;
+        margin-bottom: 5px;
+        display: block;
+      }
+      input[type="text"], input[type="email"] {
+        width: 100%;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        background: #f9f9f9;
+        margin: 5px 0 15px 0;
+        padding: 10px;
+        outline: none;
+        box-sizing: border-box;
+        transition: border-color 0.3s;
+      }
+      input[type="text"]:focus, input[type="email"]:focus {
+        border-color: #000000;
+      }
+      .invalid {
+        border-color: red;
+      }
+      .submit {
+        background: linear-gradient(to right, #000000, rgb(19, 16, 16));
+        border: none;
+        color: white;
+        padding: 10px;
+        border-radius: 8px;
+        width: 100%;
+        cursor: pointer;
+      }
+    </style>
+  
+    <label for="name">Namn</label>
+    <input type="text" class="name" name="name" required>
+  
+    <label for="email">Email</label>
+    <input type="email" class="email" name="email" required pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}$" title="Invalid email address">
+  
+    <input type="submit" class="submit" value="Fortsätt">
+  `;  
 
     formContainer.addEventListener("submit", function (event) {
       event.preventDefault();
 
       const name = formContainer.querySelector(".name");
       const email = formContainer.querySelector(".email");
-      const phone = formContainer.querySelector(".phone");
 
       if (
         !name.checkValidity() ||
-        !email.checkValidity() ||
-        !phone.checkValidity()
+        !email.checkValidity()
       ) {
         name.classList.add("invalid");
         email.classList.add("invalid");
-        phone.classList.add("invalid");
         return;
       }
 
@@ -91,7 +90,7 @@ export const FormExtension = {
 
       window.voiceflow.chat.interact({
         type: "complete",
-        payload: { name: name.value, email: email.value, phone: phone.value },
+        payload: { name: name.value, email: email.value },
       });
     });
 
@@ -105,7 +104,7 @@ export const MapExtension = {
   name: "Maps",
   type: "response",
   match: ({ trace }) =>
-    trace.type === "ext_map" || trace.payload?.name === "ext_map",
+    trace.type === "ext_map" || trace.payload.name === "ext_map",
   render: ({ trace, element }) => {
     const GoogleMap = document.createElement("iframe");
     const { apiKey, origin, destination, zoom, height, width } = trace.payload;
@@ -121,11 +120,39 @@ export const MapExtension = {
   },
 };
 
+export const TextExtension = {
+  name: "TextExtension",
+  type: "response",
+  match: ({ trace }) =>
+    trace.type === "ext_text" || trace.payload?.name === "ext_text",
+  render: ({ trace, element }) => {
+    const textContainer = document.createElement("div");
+    textContainer.innerHTML = `
+      <div style="
+        max-width: 600px;
+        margin: 0 auto;
+        background:rgb(255, 255, 255);
+        border-radius: 8px;
+        padding: 1rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        color:rgb(0, 0, 0);
+        line-height: 1.5;
+        font-size: 14.4px;
+      ">
+        <p style="margin: 0;">
+          Ditt meddelande är på väg till hjärnkontoret! Bara en sak till innan du får svaret👇
+        </p>
+      </div>
+    `;
+    element.appendChild(textContainer);
+  },
+};
+
 export const VideoExtension = {
   name: "Video",
   type: "response",
   match: ({ trace }) =>
-    trace.type === "ext_video" || trace.payload?.name === "ext_video",
+    trace.type === "ext_video" || trace.payload.name === "ext_video",
   render: ({ trace, element }) => {
     const videoElement = document.createElement("video");
     const { videoURL, autoplay, controls } = trace.payload;
@@ -151,7 +178,7 @@ export const TimerExtension = {
   name: "Timer",
   type: "response",
   match: ({ trace }) =>
-    trace.type === "ext_timer" || trace.payload?.name === "ext_timer",
+    trace.type === "ext_timer" || trace.payload.name === "ext_timer",
   render: ({ trace, element }) => {
     const { duration } = trace.payload || 5;
     let timeLeft = duration;
@@ -177,7 +204,7 @@ export const FileUploadExtension = {
   name: "FileUpload",
   type: "response",
   match: ({ trace }) =>
-    trace.type === "ext_fileUpload" || trace.payload?.name === "ext_fileUpload",
+    trace.type === "ext_fileUpload" || trace.payload.name === "ext_fileUpload",
   render: ({ trace, element }) => {
     const fileUploadContainer = document.createElement("div");
     fileUploadContainer.innerHTML = `
@@ -255,7 +282,7 @@ export const KBUploadExtension = {
   name: "KBUpload",
   type: "response",
   match: ({ trace }) =>
-    trace.type === "ext_KBUpload" || trace.payload?.name === "ext_KBUpload",
+    trace.type === "ext_KBUpload" || trace.payload.name === "ext_KBUpload",
   render: ({ trace, element }) => {
     const apiKey = trace.payload.apiKey || null;
     const maxChunkSize = trace.payload.maxChunkSize || 1000;
@@ -341,7 +368,7 @@ export const DateExtension = {
   name: "Date",
   type: "response",
   match: ({ trace }) =>
-    trace.type === "ext_date" || trace.payload?.name === "ext_date",
+    trace.type === "ext_date" || trace.payload.name === "ext_date",
   render: ({ trace, element }) => {
     const formContainer = document.createElement("form");
 
@@ -443,7 +470,7 @@ export const ConfettiExtension = {
   name: "Confetti",
   type: "effect",
   match: ({ trace }) =>
-    trace.type === "ext_confetti" || trace.payload?.name === "ext_confetti",
+    trace.type === "ext_confetti" || trace.payload.name === "ext_confetti",
   effect: ({ trace }) => {
     const canvas = document.querySelector("#confetti-canvas");
 
@@ -462,7 +489,7 @@ export const FeedbackExtension = {
   name: "Feedback",
   type: "response",
   match: ({ trace }) =>
-    trace.type === "ext_feedback" || trace.payload?.name === "ext_feedback",
+    trace.type === "ext_feedback" || trace.payload.name === "ext_feedback",
   render: ({ trace, element }) => {
     const feedbackContainer = document.createElement("div");
 
@@ -564,7 +591,7 @@ export const CalendlyExtension = {
   type: "effect",
   match: ({ trace }) => {
     return (
-      trace.type === "ext_calendly" || trace.payload?.name === "ext_calendly"
+      trace.type === "ext_calendly" || trace.payload.name === "ext_calendly"
     );
   },
   effect: ({ trace }) => {
@@ -580,7 +607,7 @@ export const MultiSelectExtension = {
   type: "response",
   match: ({ trace }) =>
     trace.type === "ext_multiselect" ||
-    trace.payload?.name === "ext_multiselect",
+    trace.payload.name === "ext_multiselect",
   render: ({ trace, element }) => {
     const { options, maxSelections } = trace.payload;
     const multiSelectContainer = document.createElement("form");
@@ -767,7 +794,7 @@ export const DisableInputExtension = {
   type: "effect",
   match: ({ trace }) =>
     trace.type === "ext_disableInput" ||
-    trace.payload?.name === "ext_disableInput",
+    trace.payload.name === "ext_disableInput",
   effect: ({ trace }) => {
     const { isDisabled } = trace.payload;
 
@@ -925,7 +952,7 @@ export const CustomImageExtension = {
   type: "response",
   match: ({ trace }) =>
     trace.type === "ext_custom_image" ||
-    trace.payload?.name === "ext_custom_image",
+    trace.payload.name === "ext_custom_image",
   render: ({ trace, element }) => {
     const { imgURL } = trace.payload;
 
@@ -970,7 +997,7 @@ export const RankOptionsExtension = {
   type: "response",
   match: ({ trace }) =>
     trace.type === "ext_rankoptions" ||
-    trace.payload?.name === "ext_rankoptions",
+    trace.payload.name === "ext_rankoptions",
   render: ({ trace, element }) => {
     const { options } = trace.payload;
 
@@ -1096,7 +1123,7 @@ export const DropdownExtension = {
   name: "DropdownExtension",
   type: "response",
   match: ({ trace }) =>
-    trace.type === "ext_dropdown" || trace.payload?.name === "ext_dropdown",
+    trace.type === "ext_dropdown" || trace.payload.name === "ext_dropdown",
   render: ({ trace, element }) => {
     const disableFooterInputs = (isDisabled) => {
       const chatDiv = document.getElementById("voiceflow-chat");
@@ -1267,7 +1294,7 @@ export const CarouselExtension = {
   name: "Carousel",
   type: "response",
   match: ({ trace }) =>
-    trace.type === "ext_carousel" || trace.payload?.name === "ext_carousel",
+    trace.type === "ext_carousel" || trace.payload.name === "ext_carousel",
   render: ({ trace, element }) => {
     console.log("trace:", trace);
     console.log("element:", element);
@@ -1443,7 +1470,7 @@ export const CustomScreenExtension = {
   match: ({ trace }) => {
     return (
       trace.type === "ext_customScreen" ||
-      trace.payload?.name === "ext_customScreen"
+      trace.payload.name === "ext_customScreen"
     );
   },
   effect: ({ trace }) => {
@@ -1624,7 +1651,7 @@ export const SkipButtonExtension = {
   type: "effect",
   match: ({ trace }) => {
     return (
-      trace.type === "ext_skipButton" || trace.payload?.name === "ext_skipButton"
+      trace.type === "ext_skipButton" || trace.payload.name === "ext_skipButton"
     );
   },
   effect: ({ trace }) => {
@@ -1698,7 +1725,7 @@ export const SettingsScreenExtension = {
   type: "effect",
   match: ({ trace }) =>
     trace.type === "ext_settingsScreen" ||
-    trace.payload?.name === "ext_settingsScreen",
+    trace.payload.name === "ext_settingsScreen",
   effect: ({ trace }) => {
     const chatDiv = document.getElementById("voiceflow-chat");
     if (chatDiv) {
@@ -1935,7 +1962,7 @@ export const StripeBuyButtonExtension = {
   type: "response",
   match: ({ trace }) =>
     trace.type === "ext_stripeBuyButton" ||
-    trace.payload?.name === "ext_stripeBuyButton",
+    trace.payload.name === "ext_stripeBuyButton",
   render: ({ trace, element }) => {
     const { publishableKey, buyButtonId, sessionId } = trace.payload;
 
@@ -2016,7 +2043,7 @@ export const PlaceholderExtension = {
   type: "effect",
   match: ({ trace }) =>
     trace.type === "ext_placeholder" ||
-    trace.payload?.name === "ext_placeholder",
+    trace.payload.name === "ext_placeholder",
   effect: ({ trace }) => {
     const chatDiv = document.getElementById("voiceflow-chat");
     const shadowRoot = chatDiv.shadowRoot;
@@ -2064,7 +2091,7 @@ export const DelayEffectExtension = {
   name: "DelayEffect",
   type: "effect",
   match: ({ trace }) =>
-    trace.type === "ext_delay" || trace.payload?.name === "ext_delay",
+    trace.type === "ext_delay" || trace.payload.name === "ext_delay",
   effect: async ({ trace }) => {
     const { delay } = trace.payload;
 
@@ -2079,7 +2106,7 @@ export const ActivateAvatarExtension = {
   type: "effect",
   match: ({ trace }) =>
     trace.type === "ext_activateAvatar" ||
-    trace.payload?.name === "ext_activateAvatar",
+    trace.payload.name === "ext_activateAvatar",
   effect: ({ trace }) => {
     const { isActive } = trace.payload;
 
@@ -2128,7 +2155,7 @@ export const LanguageDetectionExtension = {
   name: "BrowserData",
   type: "effect",
   match: ({ trace }) =>
-    trace.type === "ext_language" || trace.payload?.name === "ext_language",
+    trace.type === "ext_language" || trace.payload.name === "ext_language",
   effect: async ({ trace }) => {
     const lang = navigator.language || navigator.userLanguage;
 
@@ -2148,7 +2175,7 @@ export const WaitingAnimationExtension = {
   type: "response",
   match: ({ trace }) =>
     trace.type === "ext_waitingAnimation" ||
-    trace.payload?.name === "ext_waitingAnimation",
+    trace.payload.name === "ext_waitingAnimation",
   render: async ({ trace, element }) => {
     window.vf_done = true;
     await new Promise((resolve) => setTimeout(resolve, 250));
@@ -2289,7 +2316,7 @@ export const FeedbackSpintsoExtension = {
   type: "response",
   match: ({ trace }) =>
     trace.type === "Custom_Feedback" ||
-    trace.payload?.name === "Custom_Feedback",
+    trace.payload.name === "Custom_Feedback",
   render: ({ trace, element }) => {
     console.log(`Trace from FeedbackExtension: `, trace);
 
